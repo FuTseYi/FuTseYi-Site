@@ -9,7 +9,7 @@ SOURCE_DIRS = ("posts",)
 
 
 def configure_parser(parser):
-    parser.add_argument("--refresh-activity", action="store_true", help="Refresh public GitHub activity")
+    # Builds intentionally never fetch GitHub data; refresh is a separate workflow.
 
 
 # Summarize routine build output; retain unrecognized messages.
@@ -54,7 +54,7 @@ def assemble(root, refresh_activity=False):
     for name in ("assets", "blog"):
         shutil.copytree(root / name, site / name)
     log += run(root, "sync_readme.py", "--update-site")
-    log += run(root, "sync_activity.py", *(("--refresh",) if refresh_activity else ()))
+    log += run(root, "sync_activity.py")
     origin = re.search(r'<link rel="canonical" href="([^"]+)"',
                        (root / "index.html").read_text(encoding="utf-8"))[1].rstrip("/")
     robots = site / "robots.txt"
