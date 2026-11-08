@@ -7,6 +7,7 @@ from unittest.mock import patch
 from urllib.error import URLError
 from datetime import datetime, timezone
 import sync_activity as activity
+from scripts import refresh_contributions as refresh
 
 
 def snapshot(entries):
@@ -40,6 +41,35 @@ class ActivityTests(unittest.TestCase):
                                           snapshot([entry("org/repo", "2026-11-08T00:00:00Z")]))
         self.assertEqual(len(result["entries"]), 1)
         self.assertEqual(result["entries"][0]["name"], "org/repo")
+
+    def test_graphql_history_merge_preserves_old_entries(self):
+        old = [entry("fmhy/edit", "2025-01-01T00:00:00Z")]
+        new = [entry("datawhalechina/diy-llm", "2026-11-01T00:00:00Z")]
+        merged = refresh.merge(old + new)
+        self.assertEqual({item["name"] for item in merged},
+                         {"fmhy/edit", "datawhalechina/diy-llm"})
+
+    def test_graphql_refresh_does_not_rewrite_unchanged_history(self):
+        with tempfile.TemporaryDirectory() as directory:
+            source = Path(directory) / "contributions.json"
+            original = snapshot([entry("org/historical")])
+            source.write_text(json.dumps(original), encoding="utf-8")
+            before = source.read_bytes()
+            with patch.object(refresh, "SNAPSHOT", source), \
+                 patch.object(refresh, "collect", return_value=snapshot([entry("org/historical")])):
+                refresh.main()
+            self.assertEqual(source.read_bytes(), before)
+
+    def test_graphql_refresh_rejects_empty_result(self):
+        with tempfile.TemporaryDirectory() as directory:
+            source = Path(directory) / "contributions.json"
+            original = snapshot([entry("org/historical")])
+            source.write_text(json.dumps(original), encoding="utf-8")
+            with patch.object(refresh, "SNAPSHOT", source), \
+                 patch.object(refresh, "collect", return_value=snapshot([])):
+                with self.assertRaisesRegex(RuntimeError, "empty"):
+                    refresh.main()
+            self.assertEqual(json.loads(source.read_text()), original)
 
     def test_source_is_unchanged_after_refresh(self):
         with tempfile.TemporaryDirectory() as directory:
