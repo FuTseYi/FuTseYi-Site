@@ -35,7 +35,8 @@ def validate_snapshot(snapshot):
         if not isinstance(item, dict) or not isinstance(item.get("name"), str):
             raise ValueError("Invalid contribution entry")
         name = item["name"]
-        if not REPO_NAME.fullmatch(name) or name.lower() in EXCLUDED_REPOSITORIES:
+        if (not REPO_NAME.fullmatch(name) or name.lower() in EXCLUDED_REPOSITORIES
+                or any(part in (".", "..") for part in name.split("/"))):
             raise ValueError("Invalid or excluded contribution repository")
         if name.lower() in names:
             raise ValueError("Duplicate contribution repository")
