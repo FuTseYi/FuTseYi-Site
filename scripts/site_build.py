@@ -8,8 +8,6 @@ SOURCE_FILES = ("contributions.json", "index.html", "robots.txt", "LICENSE", "LI
 SOURCE_DIRS = ("posts",)
 
 
-def configure_parser(parser):
-    # Builds intentionally never fetch GitHub data; refresh is a separate workflow.
 
 
 # Summarize routine build output; retain unrecognized messages.
