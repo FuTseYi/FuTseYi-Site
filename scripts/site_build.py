@@ -7,9 +7,6 @@ import sys
 SOURCE_FILES = ("contributions.json", "index.html", "robots.txt", "LICENSE", "LICENSE-CONTENT", "LICENSING.md", "PUBLISHED_README.md")
 SOURCE_DIRS = ("posts",)
 
-
-
-
 # Summarize routine build output; retain unrecognized messages.
 SUMMARY_RULES = (
     (re.compile(r"^Blog: generated (\d+) article", re.MULTILINE), r"\1 篇文章 / articles"),
@@ -38,7 +35,7 @@ def run(root, script, *args):
     return result.stdout
 
 
-def assemble(root, refresh_activity=False):
+def assemble(root):
     """Reuse the deployment builders inside an isolated source copy, returning a one-line summary."""
     site = root / "_site"
     log = run(root, "build.py")
@@ -84,6 +81,6 @@ def build(root, destination, options):
         shutil.copytree(root / name, candidate / name,
                         ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
     # The tracked source snapshot is the authoritative baseline for every build.
-    summary = assemble(candidate, getattr(options, "refresh_activity", False))
+    summary = assemble(candidate)
     (candidate / "_site").rename(destination)
     return summary
