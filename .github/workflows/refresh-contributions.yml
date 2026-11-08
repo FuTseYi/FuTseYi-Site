@@ -40,16 +40,10 @@ jobs:
         with:
           python-version: '3.12'
       - name: Refresh lifetime public contributions
-        id: collect
-        continue-on-error: true
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: python scripts/refresh_contributions.py
-      - name: Warn if GitHub contribution data is unavailable
-        if: steps.collect.outcome == 'failure'
-        run: echo "::warning::Contribution refresh failed; publishing will use the last verified snapshot."
       - name: Check for snapshot changes
-        if: steps.collect.outcome == 'success'
         id: changes
         run: |
           if git diff --quiet -- contributions.json; then
@@ -64,5 +58,5 @@ jobs:
           git config user.email '${{ steps.bot.outputs.id }}+${{ steps.app.outputs.app-slug }}[bot]@users.noreply.github.com'
           git add contributions.json
           git commit -m "data: refresh verified public contributions"
-          # A snapshot-only push is ignored by deploy's push filter; workflow_run publishes.
+          # App-authored snapshot updates trigger the publishing workflow via push.
           git push origin HEAD:main
