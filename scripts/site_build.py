@@ -4,7 +4,7 @@ import shutil
 import subprocess
 import sys
 
-SOURCE_FILES = ("index.html", "robots.txt", "LICENSE", "LICENSE-CONTENT", "LICENSING.md", "PUBLISHED_README.md")
+SOURCE_FILES = ("contributions.json", "index.html", "robots.txt", "LICENSE", "LICENSE-CONTENT", "LICENSING.md", "PUBLISHED_README.md")
 SOURCE_DIRS = ("posts",)
 
 
@@ -85,10 +85,7 @@ def build(root, destination, options):
     for name in ("assets", "posts", "scripts"):
         shutil.copytree(root / name, candidate / name,
                         ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
-    snapshot = root / "_site/contributions.json"
-    if snapshot.is_file():
-        (candidate / "_site").mkdir()
-        shutil.copy2(snapshot, candidate / "_site/contributions.json")
+    # The tracked source snapshot is the authoritative baseline for every build.
     summary = assemble(candidate, getattr(options, "refresh_activity", False))
     (candidate / "_site").rename(destination)
     return summary
