@@ -1,6 +1,11 @@
 name: Refresh versioned GitHub contributions
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - scripts/refresh_contributions.py
+      - .github/workflows/refresh-contributions.yml
   workflow_dispatch:
   schedule:
     - cron: '17 1 1,15 * *'
