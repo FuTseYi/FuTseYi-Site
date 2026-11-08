@@ -149,19 +149,19 @@ def check_contribution_year_expansion(page):
     assert toggle.count() == 1
     assert toggle.get_attribute("aria-expanded") == "false"
     assert toggle.inner_text() == "Show more · 2026"
-    assert page.locator("#contribution-list .project-item:visible").count() == 3
+    assert page.locator("#contribution-list .project-item:not([hidden])").count() == 3
     toggle.click()
     assert toggle.inner_text() == "Show more · 2025"
     assert toggle.get_attribute("data-has-more") == "true"
-    assert page.locator("#contribution-list .project-item:visible").count() == 22
+    assert page.locator("#contribution-list .project-item:not([hidden])").count() == 22
     toggle.click()
     assert toggle.inner_text() == "Show less"
     assert toggle.get_attribute("data-has-more") == "false"
-    assert page.locator("#contribution-list .project-item:visible").count() >= 29
+    assert page.locator("#contribution-list .project-item:not([hidden])").count() >= 29
     toggle.click()
     assert toggle.get_attribute("aria-expanded") == "false"
     assert toggle.inner_text() == "Show more · 2026"
-    assert page.locator("#contribution-list .project-item:visible").count() == 3
+    assert page.locator("#contribution-list .project-item:not([hidden])").count() == 3
 
 
 def check_search(page):
