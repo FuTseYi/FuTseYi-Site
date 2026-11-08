@@ -5,6 +5,7 @@ import subprocess
 import sys
 
 SOURCE_FILES = ("contributions.json", "index.html", "robots.txt", "LICENSE", "LICENSE-CONTENT", "LICENSING.md", "PUBLISHED_README.md")
+SOURCE_DIRS = ("posts",)  # Used by preview.py source-change watcher.
 
 # Summarize routine build output; retain unrecognized messages.
 SUMMARY_RULES = (
