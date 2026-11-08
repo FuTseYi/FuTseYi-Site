@@ -3,11 +3,6 @@ name: Build and publish static site
 on:
   push:
     branches: [main]
-    paths-ignore:
-      - contributions.json
-  workflow_run:
-    workflows: ["Refresh versioned GitHub contributions"]
-    types: [completed]
   workflow_dispatch:
 
 permissions:
@@ -19,7 +14,6 @@ concurrency:
 
 jobs:
   publish:
-    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
