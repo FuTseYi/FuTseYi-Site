@@ -89,8 +89,7 @@ def collect():
 
 
 def previous_snapshot():
-    for load in (lambda: json.loads(SNAPSHOT.read_text(encoding="utf-8")),
-                 lambda: fetch(SITE + "/contributions.json")):
+    for load in (lambda: json.loads(SNAPSHOT.read_text(encoding="utf-8")),):
         try:
             snapshot = load()
             updated = datetime.fromisoformat(snapshot["updated_at"].replace("Z", "+00:00"))
@@ -121,7 +120,7 @@ def merge_snapshots(*snapshots):
             if key not in entries or entry["date"] > entries[key]["date"]:
                 entries[key] = entry
     ordered = sorted(entries.values(), key=lambda item: item["date"], reverse=True)
-    return {"updated_at": datetime.now(timezone.utc).isoformat(), "entries": ordered}
+    return {"updated_at": max((snapshot["updated_at"] for snapshot in snapshots if snapshot), default=datetime.now(timezone.utc).isoformat()), "entries": ordered}
 
 
 def render(snapshot):
@@ -138,7 +137,7 @@ def render(snapshot):
                     f'{escape(name)} <span class="link-arrow" aria-hidden="true"></span></a></h3>'
                     f'{description}<div class="project-tags"><span>{tags}</span></div></div></article>')
     if not rows:
-        rows.append('<p class="section-lead">No recent public code pushes or pull requests in the available activity window.</p>')
+        rows.append('<p class="section-lead">No verified public contributions available.</p>')
     updated = datetime.fromisoformat(snapshot["updated_at"].replace("Z", "+00:00"))
     rows.append(f'<p class="activity-note">Activity snapshot · {updated:%Y.%m.%d} UTC</p>')
     return "\n".join(rows)
