@@ -31,16 +31,17 @@ jobs:
         run: python preview.py --build-only
       - name: Record source and build run
         env:
-          SOURCE_SHA: ${{ github.sha }}
           SOURCE_RUN: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
-          echo "SOURCE_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+          SOURCE_SHA="$(git rev-parse HEAD)"
+          export SOURCE_SHA
+          echo "SOURCE_SHA=$SOURCE_SHA" >> "$GITHUB_ENV"
           python - <<'PY'
           import json, os
           from datetime import datetime, timezone
           from pathlib import Path
           data = {'source_repository': os.environ['GITHUB_REPOSITORY'],
-                  'source_sha': __import__('subprocess').check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(),
+                  'source_sha': os.environ['SOURCE_SHA'],
                   'source_run': os.environ['SOURCE_RUN'],
                   'built_at': datetime.now(timezone.utc).isoformat()}
           Path('_site/build-info.json').write_text(json.dumps(data, indent=2) + '\n', encoding='utf-8')
