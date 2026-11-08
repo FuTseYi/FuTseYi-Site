@@ -50,6 +50,9 @@ jobs:
                   'source_run': os.environ['SOURCE_RUN'],
                   'built_at': datetime.now(timezone.utc).isoformat()}
           Path('_site/build-info.json').write_text(json.dumps(data, indent=2) + '\n', encoding='utf-8')
+          # Only commits to the artifact repository's main branch deploy on Vercel.
+          vercel = {'git': {'deploymentEnabled': {'main': True, '*': False}}}
+          Path('_site/vercel.json').write_text(json.dumps(vercel, indent=2) + '\n', encoding='utf-8')
           PY
       - name: Create short-lived publishing token
         id: app

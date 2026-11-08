@@ -31,6 +31,7 @@ class PreviewTests(unittest.TestCase):
         self.assertIn("rsync -a --delete --exclude='.git/' _site/ published/", deploy)
         self.assertIn("repository: FuTseYi/futseyi.github.io", deploy)
         self.assertIn("permission-contents: write", deploy)
+        self.assertIn("'deploymentEnabled': {'main': True, '*': False}", deploy)
         self.assertFalse((root / "vercel.json").exists())
 
     def test_build_only_does_not_bind_preview_port(self):
