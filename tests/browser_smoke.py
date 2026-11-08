@@ -1,4 +1,5 @@
 """Chromium and WebKit regressions for generated content and navigation."""
+import json
 from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -144,7 +145,8 @@ def check_site_navigation(page, width):
 def check_contribution_year_expansion(page):
     page.goto("http://127.0.0.1:8766/", wait_until="networkidle")
     list_items = page.locator("#contribution-list .project-item")
-    assert list_items.count() >= 29
+    entries = json.loads((SITE / "contributions.json").read_text(encoding="utf-8"))["entries"]
+    assert list_items.count() == len(entries)
     toggle = page.locator("#contribution-list + .list-toggle")
     assert toggle.count() == 1
     assert toggle.get_attribute("aria-expanded") == "false"
@@ -153,11 +155,12 @@ def check_contribution_year_expansion(page):
     toggle.click()
     assert toggle.inner_text() == "Show more · 2025"
     assert toggle.get_attribute("data-has-more") == "true"
-    assert page.locator("#contribution-list .project-item:not([hidden])").count() == 22
+    assert page.locator("#contribution-list .project-item:not([hidden])").count() == sum(
+        entry["date"].startswith("2026") for entry in entries)
     toggle.click()
     assert toggle.inner_text() == "Show less"
     assert toggle.get_attribute("data-has-more") == "false"
-    assert page.locator("#contribution-list .project-item:not([hidden])").count() >= 29
+    assert page.locator("#contribution-list .project-item:not([hidden])").count() == len(entries)
     toggle.click()
     assert toggle.get_attribute("aria-expanded") == "false"
     assert toggle.inner_text() == "Show more · 2026"
