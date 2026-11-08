@@ -25,7 +25,7 @@ jobs:
           python-version: '3.12'
       - name: Refresh lifetime public contributions
         env:
-          GITHUB_TOKEN: ${{ secrets.CONTRIBUTIONS_GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           test -n "$GITHUB_TOKEN" || { echo "::error::Set CONTRIBUTIONS_GITHUB_TOKEN with read:user access to the profile's contribution history"; exit 1; }
           python scripts/refresh_contributions.py
