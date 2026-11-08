@@ -188,18 +188,14 @@ def collect(now=None):
 def main():
     previous = json.loads(SNAPSHOT.read_text(encoding="utf-8"))
     fresh = collect()
-    # An unexpectedly incomplete GraphQL response must not silently shrink history.
-    old_names = {entry["name"].lower() for entry in previous["entries"]}
-    new_names = {entry["name"].lower() for entry in fresh["entries"]}
-    if not old_names.issubset(new_names):
-        missing = sorted(old_names - new_names)
-        raise RuntimeError("Historical contributions missing from refreshed GraphQL results: " + ", ".join(missing))
     if not fresh["entries"]:
-        raise RuntimeError("Refusing empty contribution history")
-    # Only commit actual changes, not timestamp-only updates.
-    if fresh["entries"] == previous["entries"]:
+        raise RuntimeError("Refusing empty GraphQL contribution response")
+    # Historical evidence remains in Git even if a later API query is incomplete.
+    entries = merge(previous["entries"] + fresh["entries"])
+    if entries == previous["entries"]:
         print("Contribution history unchanged")
         return
+    fresh["entries"] = entries
     SNAPSHOT.write_text(json.dumps(fresh, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(f"Updated contribution history: {len(fresh['entries'])} repositories")
 
